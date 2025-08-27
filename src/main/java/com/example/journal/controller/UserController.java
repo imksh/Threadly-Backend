@@ -79,29 +79,29 @@ public class UserController
 
 
     @PutMapping
-    public ResponseEntity<?> updateUser(@RequestBody User user, HttpServletResponse response)
-    {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        String username = authentication.getName();
-        User userdb = userServices.findByUsername(username);
-        userdb.setUsername(user.getUsername());
-        userdb.setName(user.getName());
-        userdb.setEmail(user.getEmail());
-        userdb.setBio(user.getBio());
-        if(!user.getPassword().isEmpty())
-        {
-            userdb.setPassword(passwordEncoder.encode(user.getPassword()));
-        }
-        String jwt = jwtUtil.generateToken(user.getUsername());
+public ResponseEntity<?> updateUser(@RequestBody User user, HttpServletResponse response) {
+    Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+    String username = authentication.getName();
+    User userdb = userServices.findByUsername(username);
 
-        Cookie cookie = new Cookie("token", jwt);
-        cookie.setHttpOnly(true);
-        cookie.setSecure(true); // For dev; set true in production over HTTPS
-        cookie.setPath("/");
-        cookie.setMaxAge(24 * 60 * 60); // 1 day expiry
-        response.addCookie(cookie);
-        userServices.saveUser(userdb);
-        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+    userdb.setUsername(user.getUsername());
+    userdb.setName(user.getName());
+    userdb.setEmail(user.getEmail());
+    userdb.setBio(user.getBio());
+
+    if (!user.getPassword().isEmpty()) {
+        userdb.setPassword(passwordEncoder.encode(user.getPassword()));
     }
 
+    String jwt = jwtUtil.generateToken(user.getUsername());
+
+    // Set cookie with SameSite=None for cross-origin
+    response.addHeader("Set-Cookie",
+        String.format("token=%s; Path=/; Max-Age=%d; HttpOnly; Secure; SameSite=None",
+                      jwt, 24*60*60)
+    );
+
+    userServices.saveUser(userdb);
+    return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+}
 }
