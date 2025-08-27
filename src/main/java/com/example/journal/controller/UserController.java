@@ -96,7 +96,7 @@ public class UserController
 
         Cookie cookie = new Cookie("token", jwt);
         cookie.setHttpOnly(true);
-        cookie.setSecure(false); // For dev; set true in production over HTTPS
+        cookie.setSecure(true); // For dev; set true in production over HTTPS
         cookie.setPath("/");
         cookie.setMaxAge(24 * 60 * 60); // 1 day expiry
         response.addCookie(cookie);
