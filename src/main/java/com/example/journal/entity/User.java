@@ -31,6 +31,8 @@ public class User {
 
     private String name;
 
+    private String bio ="Heyy user";
+
     @Indexed(unique = true)
     private String email;
 
@@ -39,6 +41,4 @@ public class User {
     @DBRef
     private List<JournalEntry> journalEntries = new ArrayList<>();
 
-    @DBRef
-    private List<JournalEntry> saved = new ArrayList<>();
 }

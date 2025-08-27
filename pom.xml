@@ -6,9 +6,9 @@
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
 		<version>3.3.3</version>
-		<relativePath/> <!-- lookup parent from repository -->
+		<relativePath/>
 	</parent>
-	<groupId>com.idioticminds</groupId>
+	<groupId>com.example</groupId>
 	<artifactId>journal</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 	<name>journal</name>

@@ -1,5 +1,6 @@
 package com.example.journal.controller;
 
+import com.example.journal.entity.JournalEntry;
 import com.example.journal.entity.User;
 import com.example.journal.reposotiory.UserRepoImpl;
 import com.example.journal.services.EmailServices;
@@ -9,8 +10,6 @@ import com.example.journal.utils.JwtUtil;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
-//import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-//import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -19,6 +18,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 
@@ -90,46 +90,59 @@ public class PublicController
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody User user, HttpServletResponse response) {
         try {
+
             authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(user.getUsername(), user.getPassword())
             );
 
+
             UserDetails userDetails = userDetailsService.loadUserByUsername(user.getUsername());
             String jwt = jwtUtil.generateToken(userDetails.getUsername());
 
-            // Create secure HttpOnly cookie
-            Cookie cookie = new Cookie("token", jwt);
-            cookie.setHttpOnly(true);   // JS can't read this cookie
-            cookie.setSecure(true);     // Only HTTPS (for dev, you can set false)
-            cookie.setPath("/");        // accessible for all endpoints
-            cookie.setMaxAge(24 * 60 * 60); // 1 day expiry
 
+            Cookie cookie = new Cookie("token", jwt);
+            cookie.setHttpOnly(true);
+            cookie.setSecure(false);
+            cookie.setPath("/");
+            cookie.setMaxAge(24 * 60 * 60); // 1 day expiry
             response.addCookie(cookie);
 
-            // Optionally also return success message
+
             Map<String, String> responseBody = new HashMap<>();
             responseBody.put("message", "Login successful");
 
-            return new ResponseEntity<>(responseBody, HttpStatus.OK);
+            return ResponseEntity.ok(responseBody);
 
         } catch (Exception e) {
             Map<String, String> error = new HashMap<>();
             error.put("error", "Incorrect username or password");
-            return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
+        }
+    }
+
+
+    @GetMapping("/public-journals")
+    public ResponseEntity<List<JournalEntry>> getPublicJournals() {
+        try {
+            List<JournalEntry> list = userRepo.getPublicJournals();
+            return ResponseEntity.ok(list);
+        } catch (Exception e) {
+            System.out.println("Error fetching public journals: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
 
     @GetMapping("/validate-user")
-    public ResponseEntity<?> validateUser(@CookieValue(name = "jwt", required = false) String jwt) {
+    public ResponseEntity<?> validateUser(@CookieValue(name = "token", required = false) String jwt) {
         if (jwt == null) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("No token found");
         }
 
         try {
-            // Extract username
+
             String username = jwtUtil.extractUsername(jwt);
 
-            // Validate token against user details
+
             UserDetails userDetails = userDetailsService.loadUserByUsername(username);
             if (jwtUtil.validateToken(jwt, userDetails.getUsername())) {
                 return ResponseEntity.ok(Map.of("valid", true, "username", username));

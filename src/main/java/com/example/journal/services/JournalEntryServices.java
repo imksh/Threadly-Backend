@@ -43,6 +43,7 @@ public class JournalEntryServices
         return journalEntryRepo.findAll();
     }
 
+
     public Optional<JournalEntry> findById(ObjectId id)
     {
         return journalEntryRepo.findById(id);

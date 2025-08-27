@@ -38,7 +38,7 @@ public class UserServices
 
     public boolean saveAdmin(User user)
     {
-        user.setPassword(passwordEncoder.encode(user.getPassword()));
+//        user.setPassword(passwordEncoder.encode(user.getPassword()));
         user.setRoles(Arrays.asList("USER","ADMIN"));
         userRepo.save(user);
         return true;

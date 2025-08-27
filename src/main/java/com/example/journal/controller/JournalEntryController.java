@@ -13,12 +13,14 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/journal")
+@CrossOrigin(origins = "http://localhost:5173", allowCredentials = "true")
 public class JournalEntryController
 {
 
@@ -48,27 +50,37 @@ public class JournalEntryController
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String username = authentication.getName();
         entry.setDate(LocalDateTime.now());
+        entry.setUsername(username);
         journalEntryServices.saveEntry(username,entry);
         return new ResponseEntity<>(entry, HttpStatus.CREATED);
     }
 
     @GetMapping("/{myId}")
-    public ResponseEntity<?> getById(@PathVariable ObjectId myId)
+    public ResponseEntity<?> getById(@PathVariable String myId)
     {
 
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String username = authentication.getName();
         User user = userServices.findByUsername(username);
-        List<JournalEntry> list = user.getJournalEntries().stream().filter(x -> x.getId().equals(myId)).collect(Collectors.toList());
-        if(!list.isEmpty())
+        Optional<JournalEntry> entry1 = journalEntryServices.findById(new ObjectId(myId));
+        if(entry1.get().isVisible())
         {
-            Optional<JournalEntry> entry = journalEntryServices.findById(myId);
-            if(entry.isPresent())
-            {
-                return new ResponseEntity<>(entry.get(), HttpStatus.OK);
-            }
+            return new ResponseEntity<>(entry1.get(), HttpStatus.OK);
         }
-        return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        else
+        {
+            List<JournalEntry> list = user.getJournalEntries().stream().filter(x -> x.getId().equals(new ObjectId(myId))).collect(Collectors.toList());
+            if(!list.isEmpty())
+            {
+                Optional<JournalEntry> entry = journalEntryServices.findById(new ObjectId(myId));
+                if(entry.isPresent())
+                {
+                    return new ResponseEntity<>(entry.get(), HttpStatus.OK);
+                }
+            }
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+
     }
 
     @DeleteMapping("/{myId}")
@@ -101,5 +113,6 @@ public class JournalEntryController
         }
         return new ResponseEntity<>( HttpStatus.NOT_FOUND);
     }
+
 
 }

@@ -1,5 +1,6 @@
 package com.example.journal.reposotiory;
 
+import com.example.journal.entity.JournalEntry;
 import com.example.journal.entity.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.MongoTemplate;
@@ -19,6 +20,14 @@ public class UserRepoImpl
         query.addCriteria(Criteria.where("name").is("Karan"));
         List<User> users = mongoTemplate.find(query, User.class);
         return users;
+    }
+
+    public List<JournalEntry> getPublicJournals()
+    {
+        Query query = new Query();
+        query.addCriteria(Criteria.where("visible").is(true));
+        List<JournalEntry> journal = mongoTemplate.find(query, JournalEntry.class);
+        return journal;
     }
 
     public User findByEmail(String email)

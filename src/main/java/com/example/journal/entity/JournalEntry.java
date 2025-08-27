@@ -5,6 +5,7 @@ import lombok.NoArgsConstructor;
 import lombok.NonNull;
 import org.bson.types.ObjectId;
 import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.time.LocalDateTime;
@@ -20,5 +21,14 @@ public class JournalEntry
     private String title;
     private String content;
     private LocalDateTime date;
-    private boolean isPublic = false;
+    private boolean visible = true;
+    private String stringId;
+
+    private String username;
+
+
+    public String getStringId()
+    {
+        return id.toString();
+    }
 }
