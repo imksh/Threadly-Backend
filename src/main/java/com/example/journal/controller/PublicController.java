@@ -102,7 +102,7 @@ public class PublicController
 
             Cookie cookie = new Cookie("token", jwt);
             cookie.setHttpOnly(true);
-            cookie.setSecure(false);
+            cookie.setSecure(true);
             cookie.setPath("/");
             cookie.setMaxAge(24 * 60 * 60); // 1 day expiry
             response.addCookie(cookie);
