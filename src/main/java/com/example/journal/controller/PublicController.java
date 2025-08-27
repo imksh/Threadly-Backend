@@ -88,38 +88,32 @@ public class PublicController
 
 
     @PostMapping("/login")
-    public ResponseEntity<?> login(@RequestBody User user, HttpServletResponse response) {
-        try {
+public ResponseEntity<?> login(@RequestBody User user, HttpServletResponse response) {
+    try {
+        authenticationManager.authenticate(
+                new UsernamePasswordAuthenticationToken(user.getUsername(), user.getPassword())
+        );
 
-            authenticationManager.authenticate(
-                    new UsernamePasswordAuthenticationToken(user.getUsername(), user.getPassword())
-            );
+        UserDetails userDetails = userDetailsService.loadUserByUsername(user.getUsername());
+        String jwt = jwtUtil.generateToken(userDetails.getUsername());
 
+        // Add cookie with SameSite=None
+        response.addHeader("Set-Cookie",
+            String.format("token=%s; Path=/; Max-Age=%d; HttpOnly; Secure; SameSite=None",
+                          jwt, 24*60*60)
+        );
 
-            UserDetails userDetails = userDetailsService.loadUserByUsername(user.getUsername());
-            String jwt = jwtUtil.generateToken(userDetails.getUsername());
+        Map<String, String> responseBody = new HashMap<>();
+        responseBody.put("message", "Login successful");
 
+        return ResponseEntity.ok(responseBody);
 
-            Cookie cookie = new Cookie("token", jwt);
-            cookie.setHttpOnly(true);
-            cookie.setSecure(true);
-            cookie.setPath("/");
-            cookie.setMaxAge(24 * 60 * 60); // 1 day expiry
-            response.addCookie(cookie);
-
-
-            Map<String, String> responseBody = new HashMap<>();
-            responseBody.put("message", "Login successful");
-
-            return ResponseEntity.ok(responseBody);
-
-        } catch (Exception e) {
-            Map<String, String> error = new HashMap<>();
-            error.put("error", "Incorrect username or password");
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
-        }
+    } catch (Exception e) {
+        Map<String, String> error = new HashMap<>();
+        error.put("error", "Incorrect username or password");
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
     }
-
+}
 
     @GetMapping("/public-journals")
     public ResponseEntity<List<JournalEntry>> getPublicJournals() {
