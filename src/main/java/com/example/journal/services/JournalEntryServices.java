@@ -37,6 +37,18 @@ public class JournalEntryServices
             throw new RuntimeException("An Error occurred: "+e);
         }
     }
+    public void saveEntry(JournalEntry journalEntry)
+    {
+        try
+        {
+            JournalEntry saved = journalEntryRepo.save(journalEntry);
+        }
+        catch (Exception e)
+        {
+            System.out.println(e);
+            throw new RuntimeException("An Error occurred: "+e);
+        }
+    }
 
     public List<JournalEntry> getAll()
     {
