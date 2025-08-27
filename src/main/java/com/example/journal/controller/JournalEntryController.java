@@ -107,7 +107,7 @@ public class JournalEntryController
                 JournalEntry entry = old.get();
                 entry.setTitle(newEntry.getTitle()!=null && !newEntry.getTitle().equals("") ? newEntry.getTitle() : entry.getTitle());
                 entry.setContent(newEntry.getContent()!=null && !newEntry.getContent().equals("") ? newEntry.getContent() : entry.getContent());
-                journalEntryServices.saveEntry(username,entry);
+                journalEntryServices.saveEntry(entry);
                 return new ResponseEntity<>(entry, HttpStatus.OK);
             }
         }
