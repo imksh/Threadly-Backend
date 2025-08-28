@@ -59,16 +59,18 @@ public class UserController
     }
 
     @PostMapping("/logout")
-    public ResponseEntity<?> logout(HttpServletResponse response) {
-        Cookie cookie = new Cookie("token", null); // must match cookie name
-        cookie.setHttpOnly(true);
-        cookie.setSecure(true); // keep same flags as login
-        cookie.setPath("/");
-        cookie.setMaxAge(0); // expires immediately
+public ResponseEntity<?> logout(HttpServletResponse response) {
+    ResponseCookie cookie = ResponseCookie.from("token", "")
+            .path("/")
+            .httpOnly(true)
+            .secure(true)
+            .sameSite("None")  // important for cross-site cookies
+            .maxAge(0)
+            .build();
 
-        response.addCookie(cookie);
-        return ResponseEntity.ok("Logged out successfully");
-    }
+    response.addHeader("Set-Cookie", cookie.toString());
+    return ResponseEntity.ok("Logged out successfully");
+}
 
     @PostMapping("/search-user")
     public User searchUser(@RequestBody Map<String,String> req)
