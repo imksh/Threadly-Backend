@@ -60,12 +60,12 @@ public class UserController
 
     @PostMapping("/logout")
     public ResponseEntity<?> logout(HttpServletResponse response) {
-        Cookie cookie = new Cookie("jwt", null);
+        Cookie cookie = new Cookie("token", null); // must match cookie name
         cookie.setHttpOnly(true);
-//        cookie.setSecure(true);
+        cookie.setSecure(true); // keep same flags as login
         cookie.setPath("/");
-        cookie.setMaxAge(0);
-
+        cookie.setMaxAge(0); // expires immediately
+    
         response.addCookie(cookie);
         return ResponseEntity.ok("Logged out successfully");
     }
