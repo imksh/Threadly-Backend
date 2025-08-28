@@ -58,15 +58,12 @@ public class UserController
         return userServices.findByUsername(username);
     }
 
-    @PostMapping("/logout")
+   @PostMapping("/logout")
     public ResponseEntity<?> logout(HttpServletResponse response) {
-        Cookie cookie = new Cookie("token", null); // must match cookie name
-        cookie.setHttpOnly(true);
-        cookie.setSecure(true); // keep same flags as login
-        cookie.setPath("/");
-        cookie.setMaxAge(0); // expires immediately
-    
-        response.addCookie(cookie);
+        // expire cookie immediately, match all flags
+        response.addHeader("Set-Cookie",
+            "token=; Path=/; Max-Age=0; HttpOnly; Secure; SameSite=None"
+        );
         return ResponseEntity.ok("Logged out successfully");
     }
 
