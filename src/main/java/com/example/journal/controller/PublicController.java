@@ -99,7 +99,7 @@ public ResponseEntity<?> login(@RequestBody User user, HttpServletResponse respo
 
         // Add cookie with SameSite=None
         response.addHeader("Set-Cookie",
-            String.format("token=%s; Path=/; Max-Age=%d; HttpOnly; Secure; SameSite=None",
+            String.format("token=%s; Path=/; Max-Age=%d; Secure; SameSite=None",
                           jwt, 24*60*60)
         );
 
